@@ -57,7 +57,7 @@ export const PatientsPage = () => {
   };
 
   return (
-    <Paper
+    <Box
       sx={{
         flex: 1,
         display: "flex",
@@ -71,7 +71,7 @@ export const PatientsPage = () => {
         </Button>
       </Stack>
 
-      <Box sx={{ flex: 1, minHeight: 0 }}>
+      <Paper sx={{ flex: 1, minHeight: 0 }}>
         <DataGrid
           rows={data as Patient[]}
           columns={columns}
@@ -86,7 +86,7 @@ export const PatientsPage = () => {
           sx={{ height: "100%" }}
           slots={{ loadingOverlay: LinearProgress as any }}
         />
-      </Box>
+      </Paper>
 
       <PatientDialog
         open={open}
@@ -97,6 +97,6 @@ export const PatientsPage = () => {
         initialData={selectedPatient || undefined}
         onSubmit={selectedPatient ? handleUpdate : handleCreate}
       />
-    </Paper>
+    </Box>
   );
 };

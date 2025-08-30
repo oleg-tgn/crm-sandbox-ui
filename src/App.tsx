@@ -5,6 +5,7 @@ import {
   createTheme,
   type ThemeOptions,
 } from "@mui/material/styles";
+import { useState } from "react";
 
 const themeOptions: ThemeOptions = {
   palette: {
@@ -24,11 +25,16 @@ const themeOptions: ThemeOptions = {
 
 export const App = () => {
   const darkTheme = createTheme(themeOptions);
+  const [page, setPage] = useState("patients");
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <Layout>
-        <PatientsPage />
+      <Layout onNavigate={setPage}>
+        {page === "patients" && <PatientsPage />}
+        {/* 
+          {page === "appointments" && <AppointmentsPage />}
+          {page === "doctors" && <DoctorsPage />} 
+        */}
       </Layout>
     </ThemeProvider>
   );
