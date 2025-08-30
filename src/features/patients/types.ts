@@ -1,5 +1,5 @@
 export type Patient = {
-  id: string | number;
+  id?: string | number;
   firstName: string;
   lastName: string;
   dob: string;
@@ -9,4 +9,8 @@ export type Patient = {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type PatientResponse = Patient & {
+  id: string | number;
 };

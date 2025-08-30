@@ -1,11 +1,26 @@
-import { Box, Typography, LinearProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  LinearProgress,
+  Paper,
+  Stack,
+  Button,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import { usePatients } from "./hooks";
-import type { Patient } from "./types";
+import { useCreatePatient, usePatients, useUpdatePatient } from "./hooks";
+import type { Patient, PatientResponse } from "./types";
+import { PatientDialog } from "./PatientDialog";
+import { useState } from "react";
 
 export const PatientsPage = () => {
+  const [selectedPatient, setSelectedPatient] =
+    useState<PatientResponse | null>(null);
+  const [open, setOpen] = useState<boolean>(false);
+
   const { data = [], isLoading, isError, error } = usePatients();
+  const createPatient = useCreatePatient();
+  const updatePatient = useUpdatePatient();
 
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 90, sortable: true },
@@ -31,24 +46,57 @@ export const PatientsPage = () => {
     );
   }
 
+  const handleCreate = (values: Omit<Patient, "id">) => {
+    createPatient.mutate({ id: Date.now().toString(), ...values });
+  };
+
+  const handleUpdate = (values: Omit<Patient, "id">) => {
+    if (selectedPatient) {
+      updatePatient.mutate({ ...selectedPatient, ...values });
+    }
+  };
+
   return (
-    <Box
-      sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}
+    <Paper
+      sx={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
     >
-      <DataGrid
-        rows={data as Patient[]}
-        columns={columns}
-        disableRowSelectionOnClick
-        loading={isLoading}
-        hideFooterSelectedRowCount
-        initialState={{
-          sorting: { sortModel: [{ field: "lastName", sort: "asc" }] },
-          pagination: { paginationModel: { pageSize: 25 } },
+      <Stack direction="row" justifyContent="flex-end" p={2}>
+        <Button variant="contained" onClick={() => setOpen(true)}>
+          Add Patient
+        </Button>
+      </Stack>
+
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <DataGrid
+          rows={data as Patient[]}
+          columns={columns}
+          disableRowSelectionOnClick
+          loading={isLoading}
+          hideFooterSelectedRowCount
+          initialState={{
+            sorting: { sortModel: [{ field: "lastName", sort: "asc" }] },
+            pagination: { paginationModel: { pageSize: 25 } },
+          }}
+          pageSizeOptions={[10, 25, 50]}
+          sx={{ height: "100%" }}
+          slots={{ loadingOverlay: LinearProgress as any }}
+        />
+      </Box>
+
+      <PatientDialog
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setSelectedPatient(null);
         }}
-        pageSizeOptions={[10, 25, 50]}
-        sx={{ height: "100%" }}
-        slots={{ loadingOverlay: LinearProgress as any }}
+        initialData={selectedPatient || undefined}
+        onSubmit={selectedPatient ? handleUpdate : handleCreate}
       />
-    </Box>
+    </Paper>
   );
 };
